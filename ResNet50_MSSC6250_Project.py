@@ -17,7 +17,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Subset
 from torchvision.utils import make_grid
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 from lib.legoData_1Cam import legoDataOneCamera
 
@@ -52,9 +52,9 @@ torch.cuda.device_count() # how many GPUs can be used
 
 # Hyperparameters
 RANDOM_SEED = 17
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 NUM_EPOCHS = 10
-BATCH_SIZE = 16
+BATCH_SIZE = 512
 
 # Architecture
 NUM_CLASSES = 50
@@ -273,12 +273,12 @@ def imshow(img):
     plt.show()
 
 
-# get some random training images
+# # get some random training images
 dataiter = iter(train_loader)
 images, labels = dataiter.next()
 
-# Show the images for visualization
-imshow(make_grid(images,nrow=4,padding=4))
+# # Show the images for visualization
+# imshow(make_grid(images,nrow=4,padding=4))
 
 
 torch.manual_seed(RANDOM_SEED)
