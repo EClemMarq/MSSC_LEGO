@@ -8,4 +8,5 @@
 /raw_dataset
 /split_data_*
 
-
+# Ignore Sample Images I've saved
+Sample_Images*

@@ -51,7 +51,7 @@ torch.cuda.device_count() # how many GPUs can be used
 ##########################
 
 # Hyperparameters
-RANDOM_SEED = 1
+RANDOM_SEED = 17
 LEARNING_RATE = 0.001
 NUM_EPOCHS = 10
 BATCH_SIZE = 16
@@ -66,7 +66,9 @@ DEVICE = 'cuda'
 ##########################
 
 resize_transform = transforms.Compose([transforms.ToPILImage(),
-                                       transforms.Resize((400, 400)),
+                                       transforms.RandomHorizontalFlip(),
+                                       transforms.RandomVerticalFlip(),
+                                       transforms.RandomAffine(degrees=0,translate=(0.05,0.05)),
                                        transforms.ToTensor(),
                                        transforms.Normalize((0.5,), (0.5,))])
 
@@ -289,7 +291,7 @@ model = ResNet50(image_channels, NUM_CLASSES)
 
 writer = SummaryWriter('log')
 writer.add_graph(model, images)
-writer.close()
+
 
 model.to(DEVICE)
 
@@ -344,8 +346,8 @@ def compute_epoch_loss(model, data_loader):
         return curr_loss
     
 
-minibatch_cost, epoch_cost = [], []
-all_train_acc, all_valid_acc = [], []
+# minibatch_cost, epoch_cost = [], []
+# all_train_acc, all_valid_acc = [], []
 
 start_time = time.time()
 for epoch in range(NUM_EPOCHS):
@@ -362,7 +364,7 @@ for epoch in range(NUM_EPOCHS):
         optimizer.zero_grad()
         
         cost.backward()
-        minibatch_cost.append(cost)
+        # minibatch_cost.append(cost)
         
         ### UPDATE MODEL PARAMETERS
         optimizer.step()
@@ -380,47 +382,54 @@ for epoch in range(NUM_EPOCHS):
         print('Epoch: %03d/%03d | Train: %.3f%% | Valid: %.3f%%' % (
               epoch+1, NUM_EPOCHS, train_acc, valid_acc))
         
-        all_train_acc.append(train_acc)
-        all_valid_acc.append(valid_acc)
+        writer.add_scalars('Accuracy', {'training': train_acc, 
+                                        'validation': valid_acc},epoch)
+        
+        # all_train_acc.append(train_acc)
+        # all_valid_acc.append(valid_acc)
         cost = compute_epoch_loss(model, train_loader)
-        epoch_cost.append(cost)
+        
+        writer.add_scalar('Loss', cost, epoch)
+        # epoch_cost.append(cost)
         
 
     print('Time elapsed: %.2f min' % ((time.time() - start_time)/60))
     
 print('Total Training Time: %.2f min' % ((time.time() - start_time)/60))
 
+writer.close()
+
 
 # In[23]:
 
 
-with torch.set_grad_enabled(False): # save memory during inference
-    print('Test accuracy: %.2f%%' % (compute_accuracy(model, test_loader)))
+# with torch.set_grad_enabled(False): # save memory during inference
+#     print('Test accuracy: %.2f%%' % (compute_accuracy(model, test_loader)))
 
 
 # In[26]:
 
 
-plt.plot(range(len(minibatch_cost)), minibatch_cost)
-plt.ylabel('Cross Entropy')
-plt.xlabel('Minibatch')
-plt.ylim([0, 0.2])
-plt.show()
+# plt.plot(range(len(minibatch_cost)), minibatch_cost)
+# plt.ylabel('Cross Entropy')
+# plt.xlabel('Minibatch')
+# plt.ylim([0, 0.2])
+# plt.show()
 
-plt.plot(range(len(epoch_cost)), epoch_cost)
-plt.ylabel('Cross Entropy')
-plt.xlabel('Epoch')
-plt.ylim([0, 0.2])
-plt.show()
+# plt.plot(range(len(epoch_cost)), epoch_cost)
+# plt.ylabel('Cross Entropy')
+# plt.xlabel('Epoch')
+# plt.ylim([0, 0.2])
+# plt.show()
 
 
-plt.plot(range(len(all_valid_acc)), all_valid_acc, label='Validation')
-plt.plot(range(len(all_train_acc)), all_train_acc, linestyle='--', label='train')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.ylim([90, 100])
-plt.legend()
-plt.show()
+# plt.plot(range(len(all_valid_acc)), all_valid_acc, label='Validation')
+# plt.plot(range(len(all_train_acc)), all_train_acc, linestyle='--', label='train')
+# plt.ylabel('Accuracy')
+# plt.xlabel('Epoch')
+# plt.ylim([90, 100])
+# plt.legend()
+# plt.show()
 
 
 # In[ ]:
