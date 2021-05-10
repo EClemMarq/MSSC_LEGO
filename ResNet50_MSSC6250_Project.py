@@ -16,6 +16,7 @@ from torchvision import datasets
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Subset
+from torchvision.utils import make_grid
 from tensorboardX import SummaryWriter
 
 from lib.legoData_1Cam import legoDataOneCamera
@@ -34,16 +35,13 @@ import matplotlib.pyplot as plt
 # In[6]:
 
 
-# torch.cuda.device_count() # how many GPUs can be used
+torch.cuda.device_count() # how many GPUs can be used
 
 
 # In[7]:
 
 
 # torch.cuda.get_device_name(0) # GPU's type
-
-
-# Datasets --> MNIST for saving my life
 
 # In[9]:
 
@@ -59,15 +57,16 @@ NUM_EPOCHS = 10
 BATCH_SIZE = 16
 
 # Architecture
-NUM_CLASSES = 10
+NUM_CLASSES = 50
 image_channels = 3 # image channel, grayscale -> 1, colored -> 3
-DEVICE = 'cpu' 
+DEVICE = 'cuda' 
 
 ##########################
 ### MNIST DATASET
 ##########################
 
-resize_transform = transforms.Compose([transforms.Resize((400, 400)),
+resize_transform = transforms.Compose([transforms.ToPILImage(),
+                                       transforms.Resize((400, 400)),
                                        transforms.ToTensor(),
                                        transforms.Normalize((0.5,), (0.5,))])
 
@@ -255,9 +254,20 @@ def ResNet50(img_channels, num_classes):
 #%% Display images for visualization
 
 def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
     # Convert from tensor to np array
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.tick_params(
+        axis='both',
+        bottom=False,
+        top=False,
+        left=False,
+        right=False,
+        labelbottom=False,
+        labeltop=False,
+        labelleft=False,
+        labelright=False)
     plt.show()
 
 
@@ -265,27 +275,8 @@ def imshow(img):
 dataiter = iter(train_loader)
 images, labels = dataiter.next()
 
-model = ResNet50(1,10)
-writer = SummaryWriter('log')
-writer.add_graph(model, images.float())
-writer.close()
-# print(model)
-
-
-# In[17]:
-
-
-# count the total trainable parameters in the network
-
-def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-count_parameters(model)
-
-
-# Training setup
-
-# In[18]:
+# Show the images for visualization
+imshow(make_grid(images,nrow=4,padding=4))
 
 
 torch.manual_seed(RANDOM_SEED)
@@ -295,7 +286,19 @@ torch.manual_seed(RANDOM_SEED)
 ##########################
 
 model = ResNet50(image_channels, NUM_CLASSES)
+
+writer = SummaryWriter('log')
+writer.add_graph(model, images)
+writer.close()
+
 model.to(DEVICE)
+
+# count the total trainable parameters in the network
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+count_parameters(model)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
