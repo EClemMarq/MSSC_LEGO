@@ -1,0 +1,12 @@
+Attempt Number 1:
+LR: 0.01
+BATCH_SIZE: 32
+IMAGE_SIZE: 400 x 400
+NUM_EPOCH: 10
+Incorrect normalization (only normalized one channel)
+Training time: 81.14 minutes
+
+loss data is saved in log file: events.out.tfevents.1620673904.coe-lnx-2673.marqnet.mu.edu.40649
+validation: events.out.tfevents.1620674299.coe-lnx-2673.marqnet.mu.edu.40649
+training: events.out.tfevents.1620674299.coe-lnx-2673.marqnet.mu.edu.40649
+

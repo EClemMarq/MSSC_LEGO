@@ -52,9 +52,10 @@ torch.cuda.device_count() # how many GPUs can be used
 
 # Hyperparameters
 RANDOM_SEED = 17
-LEARNING_RATE = 0.01
-NUM_EPOCHS = 10
-BATCH_SIZE = 512
+LEARNING_RATE = 0.0001
+NUM_EPOCHS = 30
+BATCH_SIZE = 32
+IMAGE_SIZE = 256
 
 # Architecture
 NUM_CLASSES = 50
@@ -67,10 +68,9 @@ DEVICE = 'cuda'
 
 resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.RandomHorizontalFlip(),
-                                       transforms.RandomVerticalFlip(),
-                                       transforms.RandomAffine(degrees=0,translate=(0.05,0.05)),
+                                       transforms.Resize(IMAGE_SIZE),
                                        transforms.ToTensor(),
-                                       transforms.Normalize((0.5,), (0.5,))])
+                                       transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5,0.5))])
 
 
 # train_indices = torch.arange(0, 49000)
@@ -104,17 +104,17 @@ test_dataset = legoDataOneCamera(mode='test', dataset_root='split_data_1', trans
 
 train_loader = DataLoader(dataset=train_dataset, 
                           batch_size=BATCH_SIZE,
-                          num_workers=8,
+                          num_workers=4,
                           shuffle=True)
 
 valid_loader = DataLoader(dataset=valid_dataset, 
                           batch_size=BATCH_SIZE,
-                          num_workers=8,
+                          num_workers=4,
                           shuffle=False)
 
 test_loader = DataLoader(dataset=test_dataset, 
                          batch_size=BATCH_SIZE,
-                         num_workers=8,
+                         num_workers=4,
                          shuffle=False)
 
 #####################################################
@@ -394,6 +394,9 @@ for epoch in range(NUM_EPOCHS):
         
 
     print('Time elapsed: %.2f min' % ((time.time() - start_time)/60))
+    
+    if not epoch % 5:
+        writer.flush()
     
 print('Total Training Time: %.2f min' % ((time.time() - start_time)/60))
 
