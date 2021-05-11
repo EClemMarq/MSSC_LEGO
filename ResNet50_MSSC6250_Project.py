@@ -52,10 +52,10 @@ torch.cuda.device_count() # how many GPUs can be used
 
 # Hyperparameters
 RANDOM_SEED = 17
-LEARNING_RATE = 0.0001
-NUM_EPOCHS = 30
+LEARNING_RATE = 0.00001
+NUM_EPOCHS = 40
 BATCH_SIZE = 32
-IMAGE_SIZE = 256
+IMAGE_SIZE = (256,256)
 
 # Architecture
 NUM_CLASSES = 50
@@ -66,11 +66,19 @@ DEVICE = 'cuda'
 ### MNIST DATASET
 ##########################
 
+# resize_transform = transforms.Compose([transforms.ToPILImage(),
+#                                        transforms.RandomHorizontalFlip(),
+#                                        transforms.Resize(IMAGE_SIZE),
+#                                        transforms.ToTensor(),
+#                                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5,0.5))])
+
+
 resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.RandomHorizontalFlip(),
-                                       transforms.Resize(IMAGE_SIZE),
                                        transforms.ToTensor(),
-                                       transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5,0.5))])
+                                       transforms.Resize(IMAGE_SIZE),
+                                       transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)),
+                                       ])
 
 
 # train_indices = torch.arange(0, 49000)
@@ -301,6 +309,7 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 count_parameters(model)
+
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
