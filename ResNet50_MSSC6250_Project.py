@@ -70,7 +70,7 @@ resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.RandomHorizontalFlip(),
                                        transforms.Resize(IMAGE_SIZE),
                                        transforms.ToTensor(),
-                                       transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5,0.5))])
+                                       transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))])
 
 
 # train_indices = torch.arange(0, 49000)
