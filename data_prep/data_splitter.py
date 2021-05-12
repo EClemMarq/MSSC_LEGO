@@ -71,33 +71,38 @@ def copy2SplitDir(splitDir=None,classList=None,splitNums=None):
     for className in classList:
         classDir = os.path.join(splitDir,className)
         
-        # Make the folder, if needed
+        # If the folder already exists, don't overwrite anything
         if not os.path.exists(classDir):
             os.makedirs(classDir)  
         
-        # Iterate over each number in the validation set
-        for imgNum in splitNums:
-            
-            numStr = num2Str(imgNum)
-            
-            # Generate filenames for the left and right camera angles
-            imgR = className + "_" + numStr + "R.png"
-            imgL = className + "_" + numStr + "L.png"
-            
-            imgROut = os.path.join(classDir,imgR) 
-            imgLOut =  os.path.join(classDir,imgL)
-            
-            # Copy the files if they don't already exist
-            if not os.path.exists(imgROut):
-                copy(os.path.join(inDataPath,imgR), imgROut)
-            if not os.path.exists(imgLOut):
-                copy(os.path.join(inDataPath,imgL), imgLOut)
+            # Iterate over each number in the validation set
+            for imgNum in splitNums:
+                
+                numStr = num2Str(imgNum)
+                
+                # Generate filenames for the left and right camera angles
+                imgR = className + "_" + numStr + "R.png"
+                imgL = className + "_" + numStr + "L.png"
+                
+                imgROut = os.path.join(classDir,imgR) 
+                imgLOut =  os.path.join(classDir,imgL)
+                
+                # Copy the files if they don't already exist
+                if not os.path.exists(imgROut):
+                    copy(os.path.join(inDataPath,imgR), imgROut)
+                if not os.path.exists(imgLOut):
+                    copy(os.path.join(inDataPath,imgL), imgLOut)
+                    
+        else:
+            print("Folder already exists. No files will be added to, overwritten, or removed from an existing folder: " + classDir)
             
     return
 
 # If the outDataPath doesn't exist, make it
 if not os.path.exists(outDataPath):
     os.makedirs(outDataPath)
+else:
+    print("Folder already exists. No files will be added to, overwritten, or removed from an existing folder: " + outDataPath)
 
 # Perform list comprehension to get the class names
 classList = dataList(textClassList)
@@ -137,8 +142,10 @@ if not os.path.exists(label_file):
 valDir = os.path.join(outDataPath,"validation")
 if not os.path.exists(valDir):
     os.makedirs(valDir)   
-    
-copy2SplitDir(splitDir=valDir,classList=classList,splitNums=valNums)
+    copy2SplitDir(splitDir=valDir,classList=classList,splitNums=valNums)
+else:
+    print("Folder already exists. No files will be added to, overwritten, or removed from an existing folder: " + valDir)
+
 
 #%% COPY TEST IMAGES ----------------------------------------------------------
 
@@ -146,8 +153,10 @@ copy2SplitDir(splitDir=valDir,classList=classList,splitNums=valNums)
 testDir = os.path.join(outDataPath,"test")
 if not os.path.exists(testDir):
     os.makedirs(testDir)
+    copy2SplitDir(splitDir=testDir,classList=classList,splitNums=testNums)
+else:
+    print("Folder already exists. No files will be added to, overwritten, or removed from an existing folder: " + testDir)
 
-copy2SplitDir(splitDir=testDir,classList=classList,splitNums=testNums)
 
 #%% COPY TRAIN IMAGES ---------------------------------------------------------
          
@@ -155,6 +164,8 @@ copy2SplitDir(splitDir=testDir,classList=classList,splitNums=testNums)
 trainDir = os.path.join(outDataPath,"train")
 if not os.path.exists(trainDir):
     os.makedirs(trainDir)
-
-copy2SplitDir(splitDir=trainDir,classList=classList,splitNums=trainNums)      
+    copy2SplitDir(splitDir=trainDir,classList=classList,splitNums=trainNums) 
+else:
+    print("Folder already exists. No files will be added to, overwritten, or removed from an existing folder: " + trainDir)
+     
         
