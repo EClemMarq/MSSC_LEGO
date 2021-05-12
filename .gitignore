@@ -1,12 +1,6 @@
 # Ignore the pycache directory in root directory
 /__pycache__/
 
-# Ignore the pycache directory in lib/
-/lib/__pycache__/
-
 # Ignore the dataset folders
 /raw_dataset
 /split_data_*
-
-# Ignore Sample Images I've saved
-Sample_Images*
