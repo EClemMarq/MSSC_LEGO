@@ -44,17 +44,18 @@ print("Available GPUs: " + str(torch.cuda.device_count())) # how many GPUs can b
 
 # File organization
 ATTEMPT_NUMBER = 4
+DATA_LOCATION = 'split_data_2'
 
 # Generate a preliminary path to the results file
-results_file = "Results/attempt_" + str(ATTEMPT_NUMBER)
+RESULTS_FILE = "Results/attempt_" + str(ATTEMPT_NUMBER)
 
 # Verify that this results file doesn't already exist. If it does, update the
 # attempt number
-while exists(results_file):
+while exists(RESULTS_FILE):
     print("A folder for attempt_" + str(ATTEMPT_NUMBER) + " already exists.")
     ATTEMPT_NUMBER += 1
     print("Creating a new folder named attempt_" + str(ATTEMPT_NUMBER) + " for this attempt." )
-    results_file = "Results/attempt_" + str(ATTEMPT_NUMBER)
+    RESULTS_FILE = "Results/attempt_" + str(ATTEMPT_NUMBER)
 
 # Hyperparameters
 RANDOM_SEED = 17
@@ -84,9 +85,9 @@ resize_transform = transforms.Compose([transforms.ToPILImage(),
 #####################################################
 
 
-train_dataset = legoDataOneCamera(mode='train', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
-valid_dataset = legoDataOneCamera(mode='validation', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
-test_dataset = legoDataOneCamera(mode='test', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
+train_dataset = legoDataOneCamera(mode='train', dataset_root=DATA_LOCATION, transform=resize_transform, target_transform=None)
+valid_dataset = legoDataOneCamera(mode='validation', dataset_root=DATA_LOCATION, transform=resize_transform, target_transform=None)
+test_dataset = legoDataOneCamera(mode='test', dataset_root=DATA_LOCATION, transform=resize_transform, target_transform=None)
 
 train_loader = DataLoader(dataset=train_dataset, 
                           batch_size=BATCH_SIZE,
@@ -276,7 +277,7 @@ torch.manual_seed(RANDOM_SEED)
 
 model = ResNet50(image_channels, NUM_CLASSES)
 
-writer = SummaryWriter(results_file)
+writer = SummaryWriter(RESULTS_FILE)
 writer.add_graph(model, images)
 
 

@@ -13,8 +13,13 @@ from legoData_1Cam import legoDataOneCamera
 from torchvision import transforms
 from torch.utils.data import DataLoader
 
+##########################
+### SETTINGS
+##########################
 
-
+# Path to weights file
+PATH = "attempt_4.pth"
+DATA_LOCATION = 'split_data_2'
 
 
 # define basic blocks (or the "bottleneck")
@@ -131,18 +136,12 @@ def ResNet50(img_channels, num_classes):
 
 model = ResNet50(image_channels, num_classes)
 
-PATH = "attempt_4.pth"
-
 # model = model(*args, **kwargs)
 model.load_state_dict(torch.load(PATH))
 model.eval()
 
-
-
 # Hyperparameters
 RANDOM_SEED = 17
-# LEARNING_RATE = 0.00001
-# NUM_EPOCHS = 40
 BATCH_SIZE = 32
 IMAGE_SIZE = (256,256)
 
@@ -159,7 +158,7 @@ resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)),
                                        ])
 
-test_dataset = legoDataOneCamera(mode='test', dataset_root='split_data_1', transform=resize_transform, target_transform=None)
+test_dataset = legoDataOneCamera(mode='test', dataset_root=DATA_LOCATION, transform=resize_transform, target_transform=None)
 
 test_loader = DataLoader(dataset=test_dataset, 
                          batch_size=BATCH_SIZE,

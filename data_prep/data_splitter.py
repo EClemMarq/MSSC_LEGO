@@ -6,6 +6,9 @@ import os,sys
 from shutil import copy
 from random import sample, seed
 
+#%% SETTINGS -----------------------------------------------------------------
+# Define the percentage of original dataset used for validation, testing.
+# Everything left is used for training.
 VAL_PERCENT = 10
 TEST_PERCENT = 15
 
@@ -13,6 +16,14 @@ TEST_PERCENT = 15
 R_SEED = 2
 seed(R_SEED)
 
+# Location of the original dataset and the desired location for divided dataset
+inDataPath = "raw_dataset"
+outDataPath = "split_data_" + str(R_SEED)
+
+# Location of file listing all the data classes
+textClassList = "classNames.txt"
+
+#%% FUNCTION DECLARATIONS ----------------------------------------------------
 def dataList(fileName=None):
     #check that a file name is provided
     if fileName is None:
@@ -83,23 +94,15 @@ def copy2SplitDir(splitDir=None,classList=None,splitNums=None):
                 copy(os.path.join(inDataPath,imgL), imgLOut)
             
     return
-    
-
-# Location of the original dataset and the desired location for divided dataset
-inDataPath = "raw_dataset"
-outDataPath = "split_data_" + str(R_SEED)
 
 # If the outDataPath doesn't exist, make it
 if not os.path.exists(outDataPath):
     os.makedirs(outDataPath)
-    
-# Location of file listing all the data classes
-textClassList = "classNames.txt"
 
 # Perform list comprehension to get the class names
 classList = dataList(textClassList)
 
-#%% 
+#%% RANDOM SELECTION ----------------------------------------------------------
 # The original dataset contains 800 images of each type of piece (000L-399R).
 # To allow for future options, the matching L & R images will be stored in the
 # same split (train, validation, or test).
@@ -128,7 +131,7 @@ if not os.path.exists(label_file):
         for num in testNums:
             f.writelines(str(num) + '\n')
 
-#%%  COPY VALIDATION IMAGES
+#%%  COPY VALIDATION IMAGES ---------------------------------------------------
 
 # Make the folder
 valDir = os.path.join(outDataPath,"validation")
@@ -137,7 +140,7 @@ if not os.path.exists(valDir):
     
 copy2SplitDir(splitDir=valDir,classList=classList,splitNums=valNums)
 
-#%% COPY TEST IMAGES
+#%% COPY TEST IMAGES ----------------------------------------------------------
 
 # Make the folder
 testDir = os.path.join(outDataPath,"test")
@@ -146,7 +149,7 @@ if not os.path.exists(testDir):
 
 copy2SplitDir(splitDir=testDir,classList=classList,splitNums=testNums)
 
-#%% COPY TRAIN IMAGES
+#%% COPY TRAIN IMAGES ---------------------------------------------------------
          
 # Make the folder
 trainDir = os.path.join(outDataPath,"train")
