@@ -4,3 +4,6 @@
 # Ignore the dataset folders
 /raw_dataset
 /split_data_*
+
+# Ignore any saved weights files
+*.pth
