@@ -18,24 +18,16 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Subset
 from torchvision.utils import make_grid
 from torch.utils.tensorboard import SummaryWriter
-
-from lib.legoData_1Cam import legoDataOneCamera
+from os.path import exists
+from legoData_1Cam import legoDataOneCamera
 
 
 import matplotlib.pyplot as plt
 
-# get_ipython().run_line_magic('matplotlib', 'inline')
-
-
-# if torch.cuda.is_available():
-    # torch.backends.cudnn.deterministic = True
-    
-
-
 # In[6]:
 
 
-torch.cuda.device_count() # how many GPUs can be used
+print("Available GPUs: " + str(torch.cuda.device_count())) # how many GPUs can be used
 
 
 # In[7]:
@@ -50,6 +42,20 @@ torch.cuda.device_count() # how many GPUs can be used
 ### SETTINGS
 ##########################
 
+# File organization
+ATTEMPT_NUMBER = 4
+
+# Generate a preliminary path to the results file
+results_file = "Results/attempt_" + str(ATTEMPT_NUMBER)
+
+# Verify that this results file doesn't already exist. If it does, update the
+# attempt number
+while exists(results_file):
+    print("A folder for attempt_" + str(ATTEMPT_NUMBER) + " already exists.")
+    ATTEMPT_NUMBER += 1
+    print("Creating a new folder named attempt_" + str(ATTEMPT_NUMBER) + " for this attempt." )
+    results_file = "Results/attempt_" + str(ATTEMPT_NUMBER)
+
 # Hyperparameters
 RANDOM_SEED = 17
 LEARNING_RATE = 0.00001
@@ -63,15 +69,8 @@ image_channels = 3 # image channel, grayscale -> 1, colored -> 3
 DEVICE = 'cuda' 
 
 ##########################
-### MNIST DATASET
+### DEFINE DATA TRANSFORMS
 ##########################
-
-# resize_transform = transforms.Compose([transforms.ToPILImage(),
-#                                        transforms.RandomHorizontalFlip(),
-#                                        transforms.Resize(IMAGE_SIZE),
-#                                        transforms.ToTensor(),
-#                                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5,0.5))])
-
 
 resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.RandomHorizontalFlip(),
@@ -80,35 +79,14 @@ resize_transform = transforms.Compose([transforms.ToPILImage(),
                                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)),
                                        ])
 
-
-# train_indices = torch.arange(0, 49000)
-# valid_indices = torch.arange(49000, 50000)
-
-
-# train_and_valid = datasets.MNIST(root='data', 
-#                                    train=True, 
-#                                    transform=resize_transform,
-#                                    download=True)
-
-# train_dataset = Subset(train_and_valid, train_indices)
-# valid_dataset = Subset(train_and_valid, valid_indices)
-
-
-# test_dataset = datasets.MNIST(root='data', 
-#                                 train=False, 
-#                                 transform= resize_transform)
-
-
-
-
 #####################################################
 ### Data Loaders
 #####################################################
 
 
-train_dataset = legoDataOneCamera(mode='train', dataset_root='split_data_1', transform=resize_transform, target_transform=None)
-valid_dataset = legoDataOneCamera(mode='validation', dataset_root='split_data_1', transform=resize_transform, target_transform=None)
-test_dataset = legoDataOneCamera(mode='test', dataset_root='split_data_1', transform=resize_transform, target_transform=None)
+train_dataset = legoDataOneCamera(mode='train', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
+valid_dataset = legoDataOneCamera(mode='validation', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
+test_dataset = legoDataOneCamera(mode='test', dataset_root='split_data_2', transform=resize_transform, target_transform=None)
 
 train_loader = DataLoader(dataset=train_dataset, 
                           batch_size=BATCH_SIZE,
@@ -261,7 +239,7 @@ def ResNet50(img_channels, num_classes):
 
 # In[14]:
 
-#%% Display images for visualization
+# Display images for visualization
 
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
@@ -281,23 +259,24 @@ def imshow(img):
     plt.show()
 
 
-# # get some random training images
+# get some random training images
 dataiter = iter(train_loader)
 images, labels = dataiter.next()
 
-# # Show the images for visualization
+# Show the images for visualization
+# NOTE: This works best for BATCH_SIZE <= 16
 # imshow(make_grid(images,nrow=4,padding=4))
 
 
 torch.manual_seed(RANDOM_SEED)
 
 ##########################
-### COST AND OPTIMIZER
+### SUMMARY WRITER AND OPTIMIZER
 ##########################
 
 model = ResNet50(image_channels, NUM_CLASSES)
 
-writer = SummaryWriter('log')
+writer = SummaryWriter(results_file)
 writer.add_graph(model, images)
 
 
@@ -312,14 +291,6 @@ count_parameters(model)
 
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-
-# In[20]:
-
-
-# from torchsummary import summary
-# summary(model, (1,32,32))  # big picture of the ResNet here, use Tensordboard to make it looks fancy
-
 
 # In[22]:
 
@@ -353,10 +324,6 @@ def compute_epoch_loss(model, data_loader):
 
         curr_loss = curr_loss / num_examples
         return curr_loss
-    
-
-# minibatch_cost, epoch_cost = [], []
-# all_train_acc, all_valid_acc = [], []
 
 start_time = time.time()
 for epoch in range(NUM_EPOCHS):
@@ -373,7 +340,6 @@ for epoch in range(NUM_EPOCHS):
         optimizer.zero_grad()
         
         cost.backward()
-        # minibatch_cost.append(cost)
         
         ### UPDATE MODEL PARAMETERS
         optimizer.step()
@@ -394,13 +360,9 @@ for epoch in range(NUM_EPOCHS):
         writer.add_scalars('Accuracy', {'training': train_acc, 
                                         'validation': valid_acc},epoch)
         
-        # all_train_acc.append(train_acc)
-        # all_valid_acc.append(valid_acc)
         cost = compute_epoch_loss(model, train_loader)
         
-        writer.add_scalar('Loss', cost, epoch)
-        # epoch_cost.append(cost)
-        
+        writer.add_scalar('Loss', cost, epoch)        
 
     print('Time elapsed: %.2f min' % ((time.time() - start_time)/60))
     
@@ -415,36 +377,15 @@ writer.close()
 # In[23]:
 
 
+##########################
+### EVALUATION ON TEST SET
+##########################
+
+# NOTE: This should only be performed once all the hyperparameters have been
+# tuned using the validation set. (Performed once only.)
+
 # with torch.set_grad_enabled(False): # save memory during inference
 #     print('Test accuracy: %.2f%%' % (compute_accuracy(model, test_loader)))
-
-
-# In[26]:
-
-
-# plt.plot(range(len(minibatch_cost)), minibatch_cost)
-# plt.ylabel('Cross Entropy')
-# plt.xlabel('Minibatch')
-# plt.ylim([0, 0.2])
-# plt.show()
-
-# plt.plot(range(len(epoch_cost)), epoch_cost)
-# plt.ylabel('Cross Entropy')
-# plt.xlabel('Epoch')
-# plt.ylim([0, 0.2])
-# plt.show()
-
-
-# plt.plot(range(len(all_valid_acc)), all_valid_acc, label='Validation')
-# plt.plot(range(len(all_train_acc)), all_train_acc, linestyle='--', label='train')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.ylim([90, 100])
-# plt.legend()
-# plt.show()
-
-
-# In[ ]:
 
 
 
