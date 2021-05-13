@@ -1,0 +1,50 @@
+Attempt Number 1:
+
+This was a failed attempt, as our data normalization was applied incorrectly. (Only one channel was normalized.)  The results are included only to show our effort on the project.  The data splits used for this attempt were obtained using RANDOM_SEED=1 in the data_splitter.py script.
+
+Initial Learning Rate: 0.01
+BATCH_SIZE: 32
+IMAGE_SIZE: 400 x 400
+NUM_EPOCH: 10
+Training time: 81.14 minutes
+
+------------------------------------------------------------------------------------------------
+Attempt Number 2:
+
+This was our first successful attempt, and was much better than attempt 1.  No normalization was applied to the input data.
+The data splits used for this attempt were obtained using RANDOM_SEED=1 in the data_splitter.py script.
+
+Initial Learning Rate: 0.0001
+BATCH_SIZE: 32
+IMAGE_SIZE: 256 x 256
+NUM_EPOCH: 30
+NUM_WORKERS: 4
+Training time: 119.48 minutes
+
+------------------------------------------------------------------------------------------------
+
+Attempt Number 3:
+
+This was our most successful attempt.  Input data was normalized in each of the 3 channels (R,G,B).
+The data splits used for this attempt were obtained using RANDOM_SEED=1 in the data_splitter.py script.
+
+Initial Learning Rate: 0.00001
+BATCH_SIZE: 32
+IMAGE_SIZE: 256 x 256
+NUM_EPOCH: 40
+NUM_WORKERS: 4
+Training time: ??
+
+-------------------------------------------------------------------------------------------------
+
+Attempt Number 4:
+
+While attempt number 3 was successful, we only applied it to one version of the train-test-validation split. Attempt
+number 4 applied the same hyper-parameters, but on the data split using RANDOM_SEED=2 in the data_splitter.py script.
+
+Initial Learning Rate: 0.00001
+BATCH_SIZE: 32
+IMAGE_SIZE: 256 x 256
+NUM_EPOCH: 40
+NUM_WORKERS: 4
+Training time: ??
