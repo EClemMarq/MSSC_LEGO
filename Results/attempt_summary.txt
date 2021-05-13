@@ -1,4 +1,4 @@
-Attempt Number 1:
+tensAttempt Number 1:
 
 This was a failed attempt, as our data normalization was applied incorrectly. (Only one channel was normalized.)  The results are included only to show our effort on the project.  The data splits used for this attempt were obtained using RANDOM_SEED=1 in the data_splitter.py script.
 
@@ -33,7 +33,7 @@ BATCH_SIZE: 32
 IMAGE_SIZE: 256 x 256
 NUM_EPOCH: 40
 NUM_WORKERS: 4
-Training time: ??
+Training time: 152 minutes
 
 -------------------------------------------------------------------------------------------------
 
@@ -47,4 +47,4 @@ BATCH_SIZE: 32
 IMAGE_SIZE: 256 x 256
 NUM_EPOCH: 40
 NUM_WORKERS: 4
-Training time: ??
+Training time: 152 minutes
